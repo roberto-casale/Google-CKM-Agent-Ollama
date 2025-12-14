@@ -1,7 +1,7 @@
 [project]
-name = "adk-ollama-demo"
+name = "adk-ollama-CKM"
 version = "0.1.0"
-description = "Google Agent ADK demo project using Ollama ministral-3:14b"
+description = "Google Agent ADK CKM using Ollama ministral-3:14b"
 requires-python = ">=3.10"
 dependencies = [
     "google-adk[all]>=1.0.0",

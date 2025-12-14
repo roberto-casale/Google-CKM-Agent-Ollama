@@ -1,8 +1,0 @@
-# Root agent configuration for ADK
-# This file is used by ADK to load the agent configuration
-# The agent is defined in src/agent.py
-
-# Environment variables can be set here if needed
-# env:
-#   OLLAMA_API_BASE: "http://localhost:11434"
-
