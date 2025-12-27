@@ -20,15 +20,38 @@ A multi-agent system for Cardio-Kidney-Metabolic (CKM) condition assessment usin
 
 ## Overview
 
-This project implements a CKM (Cardio-Kidney-Metabolic) multi-agent board pattern that:
+This project implements a CKM (Cardio-Kidney-Metabolic) Syndrome multi-agent consultation pattern with a **streamlined clinical intake experience**:
 
-1. **Accepts patient cases** as free-form text descriptions
-2. **Runs three specialist agents in parallel**:
+### New UX Features
+
+- **Welcome Flow** with two intake modes:
+  - **Guided Intake (recommended)**: 3–5 decision-critical questions per turn
+  - **Paste Mode**: Paste full case (free text or JSON) for automatic structuring
+
+- **Decision-First Branching**: For peri-operative cases, asks procedure details before CKM essentials
+
+- **Consultation Snapshot Output (≤250 words)**:
+  - A) One-line problem
+  - B) 5 key facts
+  - C) 5 key risks
+  - D) Decisions needed today
+  - E) Next steps with owner + timing
+
+- **Expandable Details**: Reply A (medication table), B (specialty rationale), C (citations)
+
+- **De-duplication**: No repeated summaries across specialties
+
+- **Missing Data Flags**: Explicit statements like "HF phenotype unclear; EF not provided"
+
+### Core Architecture
+
+1. **Intake Agent** handles user interaction and case collection
+2. **Three specialist agents run in parallel**:
    - Cardiologist (HFrEF/HFpEF management, ESC 2023/AHA 2024 guidelines)
    - Nephrologist (CKD management, KDIGO 2024 guidelines)
    - Diabetologist (Diabetes management, ADA 2024 guidelines)
-3. **Synthesizes recommendations** through a mediator agent
-4. **Provides unified treatment plans** with conflict resolution
+3. **Mediator agent** synthesizes recommendations into Consultation Snapshot format
+4. **Root agent** coordinates the flow and handles expansion requests
 
 ## Prerequisites
 
