@@ -1,6 +1,6 @@
 # Google Agent Development Kit (ADK) with Ollama
 
-A multi-agent system for Cardio-Kidney-Metabolic (CKM) condition assessment using Google's Agent Development Kit (ADK) and Ollama's ministral-3:14b model. This project demonstrates a sophisticated multi-agent pattern where specialist agents (cardiologist, nephrologist, and diabetologist) work in parallel, followed by a mediator agent that synthesizes their recommendations.
+A multi-agent system for Cardio-Kidney-Metabolic (CKM) condition assessment using Google's Agent Development Kit (ADK) and Ollama's **qwen2.5:14b** model. This project demonstrates a sophisticated multi-agent pattern where specialist agents (cardiologist, nephrologist, and diabetologist) work in parallel, followed by a mediator agent that synthesizes their recommendations.
 
 ## Table of Contents
 
@@ -60,7 +60,7 @@ Before you begin, ensure you have the following installed:
 - **Python 3.10 or higher** (Python 3.11+ strongly recommended)
 - **pip** (Python package installer)
 - **Ollama** (for running local LLM models)
-- **Git** (for cloning the repository, if applicable)
+- **Git** (for cloning the repository)
 
 ## Installation Guide
 
