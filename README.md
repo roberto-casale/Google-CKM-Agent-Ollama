@@ -76,7 +76,7 @@ Before you begin, ensure you have the following installed:
 2. **If Python is not installed**, install it using Homebrew:
    ```bash
    # Install Homebrew if not already installed
-   /bin/bash -c "$(curl -fsSL [https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    
    # Install Python
    brew install python3
@@ -114,7 +114,7 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/fpesce81/Google-CKM-Agent-Ollama.git](https://github.com/fpesce81/Google-CKM-Agent-Ollama.git)
+   git clone https://github.com/fpesce81/Google-CKM-Agent-Ollama.git
    ```
 
 2. **Navigate to project directory:**
@@ -175,7 +175,7 @@ Before you begin, ensure you have the following installed:
 1. **Install Ollama:**
    ```bash
    # Using the official installer
-   curl -fsSL [https://ollama.com/install.sh](https://ollama.com/install.sh) | sh
+   curl -fsSL https://ollama.com/install.sh | sh
    
    # OR download from [https://ollama.com/download/linux](https://ollama.com/download/linux)
    ```
@@ -196,7 +196,7 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/fpesce81/Google-CKM-Agent-Ollama.git](https://github.com/fpesce81/Google-CKM-Agent-Ollama.git)
+   git clone https://github.com/fpesce81/Google-CKM-Agent-Ollama.git
    ```
 
 2. **Navigate to project directory:**
@@ -271,7 +271,7 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository:**
    ```powershell
-   git clone [https://github.com/fpesce81/Google-CKM-Agent-Ollama.git](https://github.com/fpesce81/Google-CKM-Agent-Ollama.git)
+   git clone https://github.com/fpesce81/Google-CKM-Agent-Ollama.git
    ```
 
 2. **Open Command Prompt or PowerShell** and navigate to project directory:
