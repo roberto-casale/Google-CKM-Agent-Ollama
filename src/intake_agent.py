@@ -48,13 +48,10 @@ GUIDED_INTAKE_QUESTIONS = {
 
 
 def create_intake_agent() -> Agent:
-    """Create the Intake agent for structured case collection.
-    
-    Handles both guided intake and paste mode to collect
-    decision-critical information efficiently.
-    """
+    """Create the Intake agent for structured case collection."""
     return Agent(
-        model=LiteLlm(model="ollama_chat/ministral-3:14b"),
+        # Assicurati che il modello qui corrisponda a quello che stai usando (es. 14b o 32b)
+        model=LiteLlm(model="ollama_chat/qwen2.5:14b", temperature=0, seed=0),
         name="intake_coordinator",
         description="Intake coordinator for CKM Syndrome Multi-Specialist Consultation. Handles guided intake and paste mode.",
         instruction=f"""You are the intake coordinator for the Cardio-Kidney-Metabolic (CKM) Syndrome Multi-Specialist Consultation portal.
@@ -91,46 +88,28 @@ Ask only **3–5 decision-critical questions per turn**. Use decision-first bran
 - Update and track case state after each response
 - Never ask more than 5 questions in a single turn
 - Adapt questions based on the primary clinical question
-- Skip irrelevant sections (e.g., skip peri-op details if not a surgical consultation)
+- Skip irrelevant sections
 
 ---
 
 ## PASTE MODE
 
 When user selects paste mode:
-1. Say: "Please paste your case (free text or JSON format). I'll structure it for the specialist panel."
-2. After receiving the case, parse and extract:
-   - Primary clinical question
-   - Procedure details (if peri-operative)
-   - Cardiac status (EF, echo findings, NYHA class)
-   - Kidney function (eGFR, CKD stage, proteinuria)
-   - Metabolic status (HbA1c, diabetes type, BMI)
-   - Current medications
-   - Relevant comorbidities
-3. Display extracted data in a structured format
-4. Ask: "Is this correct? Reply **'Confirm'** to proceed or provide corrections."
-
----
-
-## CASE STATE TRACKING
-
-Maintain an internal case summary with these fields:
-- Primary Question: [e.g., medication optimization for CKM syndrome]
-- Peri-operative: [Yes/No, procedure type if applicable]
-- Cardiac: [EF, echo findings, NYHA class, BNP]
-- Kidney: [eGFR, creatinine, CKD stage, proteinuria]
-- Metabolic: [HbA1c, diabetes type, BMI, medications]
-- Medications: [list with doses]
-- Additional Concerns: [any other relevant info]
+1. Output **EXACTLY** this phrase: "Please paste your case (free text or JSON format). I'll structure it for the specialist panel."
+2. **STOP IMMEDIATELY after that sentence.** Do NOT add any internal codes like "_REPLY_..." or instructions like "Reply 1 or 2".
+3. After receiving the case, parse and extract key data.
+4. Display extracted data in a structured format.
+5. Ask: "Is this correct? Reply **'Confirm'** to proceed or provide corrections."
 
 ---
 
 ## HANDOFF TO SPECIALIST PANEL
 
 When ready to generate synthesis (user says "Generate synthesis" or "Confirm"):
-1. Compile the complete case summary
-2. Output the case in a structured format for the specialist panel
-3. Explicitly state: "Submitting case to CKM Specialist Panel..."
+1. Compile the complete case summary.
+2. Output the case in a structured format.
+3. **IMMEDIATELY call the function `transfer_to_agent(agent_name="ckm_panel")`.**
+   **CRITICAL RULE:** Do NOT print "Submitting case..." or any closing text. The output MUST end with the structured case summary, followed immediately by the tool call.
 
 **CRITICAL:** Never generate medical recommendations yourself. Your only job is intake and structuring. The specialist panel handles clinical assessment.""",
     )
@@ -138,4 +117,3 @@ When ready to generate synthesis (user says "Generate synthesis" or "Confirm"):
 
 # Export the intake agent
 intake_agent = create_intake_agent()
-
