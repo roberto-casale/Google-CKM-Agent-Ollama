@@ -50,7 +50,6 @@ GUIDED_INTAKE_QUESTIONS = {
 def create_intake_agent() -> Agent:
     """Create the Intake agent for structured case collection."""
     return Agent(
-        # Assicurati che il modello qui corrisponda a quello che stai usando (es. 14b o 32b)
         model=LiteLlm(model="ollama_chat/qwen2.5:14b", temperature=0, seed=0),
         name="intake_coordinator",
         description="Intake coordinator for CKM Syndrome Multi-Specialist Consultation. Handles guided intake and paste mode.",
@@ -116,4 +115,5 @@ When ready to generate synthesis (user says "Generate synthesis" or "Confirm"):
 
 
 # Export the intake agent
+
 intake_agent = create_intake_agent()
