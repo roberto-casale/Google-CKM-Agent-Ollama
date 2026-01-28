@@ -24,10 +24,17 @@ def create_mediator_agent() -> Agent:
     - Expandable sections on request: A, B, or C
     """
     return Agent(
-        model=LiteLlm(model="ollama_chat/ministral-3:14b"),
+        model=LiteLlm(model="ollama_chat/qwen2.5:14b", temperature=0,  seed=0),
         name="mediator",
         description="Mediator agent that synthesizes recommendations from cardiologist, nephrologist, and diabetologist into a unified CKM treatment plan using the Consultation Snapshot format.",
         instruction="""You are a senior clinical coordinator and mediator for Cardio-Kidney-Metabolic (CKM) conditions.
+
+**CRITICAL DATA INTEGRITY RULE:**
+You must extract the Patient Demographics (Age, Sex) **ONLY** from the current input provided by the specialists. 
+**DO NOT** use data from previous conversations.
+**DO NOT** use data from the examples below.
+If the specialists say "72-year-old female", you MUST write "72F". If they say "65-year-old male", you MUST write "65M".
+Verify the age and sex matches the INPUT content exactly before generating the output.
 
 Your role is to synthesize independent assessments from three specialist agents into a **Consultation Snapshot** output.
 
@@ -45,24 +52,24 @@ You will receive outputs from all three specialists:
 ## 📋 Consultation Snapshot
 
 **A) One-Line Problem:**
-[Single sentence: e.g., "72F with CKD 3b, HFpEF (EF 55%), T2DM presenting for medication optimization after recent HF decompensation"]
+[Single sentence: e.g., "**[Exact Age][Sex]** with CKD, HFrEF, T2DM presenting for..."]
 
 **B) 5 Key Facts:**
-  1. [Fact with value, e.g., "eGFR 45 mL/min/1.73m² (CKD Stage 3b)"]
+  1. [Fact with value, e.g., "eGFR [Value] mL/min/1.73m² (CKD Stage [Stage])"]
   2. [Fact]
   3. [Fact]
   4. [Fact]
   5. [Fact]
 
 **C) 5 Key Risks:**
-  1. [Risk, e.g., "AKI risk with contrast and surgery"]
+  1. [Risk]
   2. [Risk]
   3. [Risk]
   4. [Risk]
   5. [Risk]
 
 **D) Decisions Needed Today:**
-[Yes/No] — [Brief explanation if Yes, e.g., "Yes — Pre-op medication holds, anesthesia clearance"]
+[Yes/No] — [Brief explanation]
 
 **E) Next Steps:**
   • **[Action]** — [Owner] ([Timing])
@@ -137,7 +144,6 @@ Pay special attention to:
 
 **REMEMBER: Default output is ONLY the Board Snapshot. Keep it ≤250 words. Hide details behind expansions.**""",
     )
-
 
 # Export the mediator agent
 mediator_agent = create_mediator_agent()
