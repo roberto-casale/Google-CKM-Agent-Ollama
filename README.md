@@ -1,743 +1,602 @@
-# Google Agent Development Kit (ADK) with Ollama
+# **Google Agent Development Kit (ADK) with Ollama**
 
 A multi-agent system for Cardio-Kidney-Metabolic (CKM) condition assessment using Google's Agent Development Kit (ADK) and Ollama's **qwen2.5:14b** model. This project demonstrates a sophisticated multi-agent pattern where specialist agents (cardiologist, nephrologist, and diabetologist) work in parallel, followed by a mediator agent that synthesizes their recommendations.
 
-## Table of Contents
+## **Table of Contents**
 
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Installation Guide](#installation-guide)
-  - [macOS](#macos)
-  - [Linux](#linux)
-  - [Windows](#windows)
-- [Ollama Setup](#ollama-setup)
-- [Project Setup](#project-setup)
-- [Verification](#verification)
-- [Running the Project](#running-the-project)
-- [Usage Examples](#usage-examples)
-- [Troubleshooting](#troubleshooting)
-- [Project Structure](#project-structure)
+* [Overview](https://www.google.com/search?q=%23overview)
+* [Prerequisites](https://www.google.com/search?q=%23prerequisites)
+* [Installation Guide](https://www.google.com/search?q=%23installation-guide)
 
-## Overview
+  * [macOS](https://www.google.com/search?q=%23macos)
+  * [Linux](https://www.google.com/search?q=%23linux)
+  * [Windows](https://www.google.com/search?q=%23windows)
+
+* [Ollama Setup](https://www.google.com/search?q=%23ollama-setup)
+* [Project Setup](https://www.google.com/search?q=%23project-setup)
+* [Verification](https://www.google.com/search?q=%23verification)
+* [Running the Project](https://www.google.com/search?q=%23running-the-project)
+* [Usage Examples](https://www.google.com/search?q=%23usage-examples)
+* [Troubleshooting](https://www.google.com/search?q=%23troubleshooting)
+* [Project Structure](https://www.google.com/search?q=%23project-structure)
+
+## **Overview**
 
 This project implements a CKM (Cardio-Kidney-Metabolic) Syndrome multi-agent consultation pattern with a **streamlined clinical intake experience**:
 
-### New UX Features
+### **New UX Features**
 
-- **Welcome Flow** with two intake modes:
-  - **Guided Intake (recommended)**: 3–5 decision-critical questions per turn
-  - **Paste Mode**: Paste full case (free text or JSON) for automatic structuring
+* **Welcome Flow** with two intake modes:
 
-- **Decision-First Branching**: For peri-operative cases, asks procedure details before CKM essentials
+  * **Guided Intake (recommended)**: 3–5 decision-critical questions per turn
+  * **Paste Mode**: Paste full case (free text or JSON) for automatic structuring
 
-- **Consultation Snapshot Output (≤250 words)**:
-  - A) One-line problem
-  - B) 5 key facts
-  - C) 5 key risks
-  - D) Decisions needed today
-  - E) Next steps with owner + timing
+* **Decision-First Branching**: For peri-operative cases, asks procedure details before CKM essentials
+* **Consultation Snapshot Output (≤250 words)**:
 
-- **Expandable Details**: Reply A (medication table), B (specialty rationale), C (citations)
+  * A) One-line problem
+  * B) 5 key facts
+  * C) 5 key risks
+  * D) Decisions needed today
+  * E) Next steps with owner + timing
 
-- **De-duplication**: No repeated summaries across specialties
+* **Expandable Details**: Reply A (medication table), B (specialty rationale), C (citations)
+* **De-duplication**: No repeated summaries across specialties
+* **Missing Data Flags**: Explicit statements like "HF phenotype unclear; EF not provided"
 
-- **Missing Data Flags**: Explicit statements like "HF phenotype unclear; EF not provided"
-
-### Core Architecture
+### **Core Architecture**
 
 1. **Intake Agent** handles user interaction and case collection
 2. **Three specialist agents run in parallel**:
-   - Cardiologist (HFrEF/HFpEF management, ESC 2023/AHA 2024 guidelines)
-   - Nephrologist (CKD management, KDIGO 2024 guidelines)
-   - Diabetologist (Diabetes management, ADA 2024 guidelines)
+
+   * Cardiologist (HFrEF/HFpEF management, ESC 2023/AHA 2024 guidelines)
+   * Nephrologist (CKD management, KDIGO 2024 guidelines)
+   * Diabetologist (Diabetes management, ADA 2024 guidelines)
+
 3. **Mediator agent** synthesizes recommendations into Consultation Snapshot format
 4. **Root agent** coordinates the flow and handles expansion requests
 
-## Prerequisites
+## **Prerequisites**
 
 Before you begin, ensure you have the following installed:
 
-- **Python 3.10 or higher** (Python 3.11+ strongly recommended)
-- **pip** (Python package installer)
-- **Ollama** (for running local LLM models)
-- **Git** (for cloning the repository)
+* **Python 3.10 or higher** (Python 3.11+ strongly recommended)
+* **pip** (Python package installer)
+* **Ollama** (for running local LLM models)
+* **Git** (for cloning the repository)
 
-## Installation Guide
+## **Installation Guide**
 
-### macOS
+### **macOS**
 
-#### Step 1: Install Python
+#### **Step 1: Install Python**
 
-1. **Check if Python is installed:**
-   ```bash
+1. **Check if Python is installed:**  
    python3 --version
-   ```
-
 2. **If Python is not installed**, install it using Homebrew:
-   ```bash
+
    # Install Homebrew if not already installed
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   
-   # Install Python
+
+   /bin/bash -c "$(curl -fsSL \[https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh](https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh))"
+
+   \# Install Python  
    brew install python3
-   ```
 
-3. **Verify installation:**
-   ```bash
-   python3 --version
+3. **Verify installation:**  
+   python3 --version  
    python3 -m pip --version
-   ```
 
-#### Step 2: Install Ollama
+   #### **Step 2: Install Ollama**
 
-1. **Download and install Ollama:**
-   ```bash
+4. **Download and install Ollama:**
+
    # Using Homebrew (recommended)
+
    brew install ollama
-   
-   # OR download from [https://ollama.com/download/mac](https://ollama.com/download/mac)
-   ```
 
-2. **Start Ollama service:**
-   ```bash
+   \# OR download from \[https://ollama.com/download/mac](https://ollama.com/download/mac)
+
+5. **Start Ollama service:**  
+   **Note:** If you have the Ollama application installed and running in the background (visible in the menu bar), you do **not** need to run the command below.  
+   If the app is *not* running, start it via terminal:  
    ollama serve
-   ```
-   
-   **Note:** If you receive an error like `Error: listen tcp 127.0.0.1:11434: bind: Only one usage of each socket address`, it means the Ollama software is already running in the background. You can skip this step and proceed.
 
-3. **Verify Ollama is running** (in a new terminal):
-   ```bash
+   *If you see an error like bind: Only one usage of each socket address, it means Ollama is already running in the background. You can proceed to the next step.*
+
+6. **Verify Ollama is running** (in a new terminal):  
    curl http://localhost:11434/api/tags
-   ```
 
-#### Step 3: Clone & Set Up Project
+   #### **Step 3: Set Up Project**
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/fpesce81/Google-CKM-Agent-Ollama.git
-   ```
-
-2. **Navigate to project directory:**
-   ```bash
+7. **Clone the repository:**  
+   git clone \[https://github.com/fpesce81/Google-CKM-Agent-Ollama.git](https://github.com/fpesce81/Google-CKM-Agent-Ollama.git)
+8. **Navigate to project directory:**  
    cd Google-CKM-Agent-Ollama
-   ```
-
-3. **Create a virtual environment:**
-   ```bash
+9. **Create a virtual environment:**  
    python3 -m venv venv
-   ```
+10. **Activate the virtual environment:**  
+    source venv/bin/activate
+11. **Upgrade pip:**  
+    pip install --upgrade pip
+12. **Install project dependencies:**  
+    pip install -r requirements.txt
 
-4. **Activate the virtual environment:**
-   ```bash
-   source venv/bin/activate
-   ```
+    This will install:
 
-5. **Upgrade pip:**
-   ```bash
-   pip install --upgrade pip
-   ```
+    * google-adk\[all]>=1.0.0
+    * litellm>=1.0.0
+    * requests>=2.31.0
 
-6. **Install project dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ### **Linux**
 
-   This will install:
-   - `google-adk[all]>=1.0.0`
-   - `litellm>=1.0.0`
-   - `requests>=2.31.0`
+    #### **Step 1: Install Python**
 
-### Linux
+13. **Update package manager:**
 
-#### Step 1: Install Python
+    # For Ubuntu/Debian
 
-1. **Update package manager:**
-   ```bash
-   # For Ubuntu/Debian
-   sudo apt update
-   sudo apt install python3 python3-pip python3-venv
-   
-   # For Fedora/RHEL/CentOS
-   sudo dnf install python3 python3-pip
-   
-   # For Arch Linux
-   sudo pacman -S python python-pip
-   ```
+    sudo apt update  
+    sudo apt install python3 python3-pip python3-venv git
 
-2. **Verify installation:**
-   ```bash
-   python3 --version
-   python3 -m pip --version
-   ```
+    \# For Fedora/RHEL/CentOS  
+    sudo dnf install python3 python3-pip git
 
-#### Step 2: Install Ollama
+    \# For Arch Linux  
+    sudo pacman -S python python-pip git
 
-1. **Install Ollama:**
-   ```bash
-   # Using the official installer
-   curl -fsSL https://ollama.com/install.sh | sh
-   
-   # OR download from [https://ollama.com/download/linux](https://ollama.com/download/linux)
-   ```
+14. **Verify installation:**  
+    python3 --version  
+    python3 -m pip --version
 
-2. **Start Ollama service:**
-   ```bash
-   ollama serve
-   ```
-   
-   **Note:** If you receive an error like `Error: listen tcp 127.0.0.1:11434: bind: Only one usage of each socket address`, it means the Ollama software is already running in the background. You can skip this step and proceed.
+    #### **Step 2: Install Ollama**
 
-3. **Verify Ollama is running** (in a new terminal):
-   ```bash
-   curl http://localhost:11434/api/tags
-   ```
+15. **Install Ollama:**
 
-#### Step 3: Clone & Set Up Project
+    # Using the official installer
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/fpesce81/Google-CKM-Agent-Ollama.git
-   ```
+    curl -fsSL \[https://ollama.com/install.sh](https://ollama.com/install.sh) | sh
 
-2. **Navigate to project directory:**
-   ```bash
-   cd Google-CKM-Agent-Ollama
-   ```
+    \# OR download from \[https://ollama.com/download/linux](https://ollama.com/download/linux)
 
-3. **Create a virtual environment:**
-   ```bash
-   python3 -m venv venv
-   ```
+16. **Start Ollama service:**  
+    ollama serve
 
-4. **Activate the virtual environment:**
-   ```bash
-   source venv/bin/activate
-   ```
+    *If you see an error like bind: Only one usage of each socket address, it means Ollama is already running in the background. You can proceed to the next step.*
 
-5. **Upgrade pip:**
-   ```bash
-   pip install --upgrade pip
-   ```
+17. **Verify Ollama is running** (in a new terminal):  
+    curl http://localhost:11434/api/tags
 
-6. **Install project dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+    #### **Step 3: Set Up Project**
 
-### Windows
+18. **Clone the repository:**  
+    git clone \[https://github.com/fpesce81/Google-CKM-Agent-Ollama.git](https://github.com/fpesce81/Google-CKM-Agent-Ollama.git)
+19. **Navigate to project directory:**  
+    cd Google-CKM-Agent-Ollama
+20. **Create a virtual environment:**  
+    python3 -m venv venv
+21. **Activate the virtual environment:**  
+    source venv/bin/activate
+22. **Upgrade pip:**  
+    pip install --upgrade pip
+23. **Install project dependencies:**  
+    pip install -r requirements.txt
 
-#### Step 1: Install Python
+    ### **Windows**
 
-1. **Download Python:**
-   - Visit https://www.python.org/downloads/
-   - Download Python 3.10 or higher (3.11+ recommended)
-   - **Important:** Check "Add Python to PATH" during installation
+    #### **Step 1: Install Python and Git**
 
-2. **Verify installation:**
-   ```powershell
-   python --version
-   python -m pip --version
-   ```
+24. **Download Python:**
 
-   If the commands don't work, you may need to restart your terminal or add Python to your PATH manually.
+    * Visit https://www.python.org/downloads/
+    * Download Python 3.10 or higher (3.11+ recommended)
+    * **Important:** Check "Add Python to PATH" during installation
 
-#### Step 2: Install Ollama
+25. **Download Git:**
 
-1. **Download Ollama:**
-   - Visit https://ollama.com/download/windows
-   - Download and run the Windows installer
-   - Follow the installation wizard
+    * Visit https://www.google.com/search?q=https://git-scm.com/download/win and install Git for Windows.
 
-2. **Start Ollama:**
-   - Ollama should start automatically as a Windows service.
-   - If not, open Command Prompt or PowerShell and run:
-     ```powershell
-     ollama serve
-     ```
-   
-   **Note:** If you receive an error like `Error: listen tcp 127.0.0.1:11434: bind: Only one usage of each socket address`, it means the Ollama software is already running in the background (check your system tray). You can skip this step and proceed.
+26. **Verify installation:**  
+    python --version  
+    python -m pip --version  
+    git --version
 
-3. **Verify Ollama is running** (in a new terminal):
-   ```powershell
-   curl http://localhost:11434/api/tags
-   ```
-   
-   If `curl` is not available, use PowerShell's `Invoke-WebRequest`:
-   ```powershell
-   Invoke-WebRequest -Uri http://localhost:11434/api/tags
-   ```
+    If the commands don't work, you may need to restart your terminal or add Python to your PATH manually.
 
-#### Step 3: Clone & Set Up Project
+    #### **Step 2: Install Ollama**
 
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/fpesce81/Google-CKM-Agent-Ollama.git
-   ```
+27. **Download Ollama:**
 
-2. **Open Command Prompt or PowerShell** and navigate to project directory:
-   ```powershell
-   cd Google-CKM-Agent-Ollama
-   ```
+    * Visit https://ollama.com/download/windows
+    * Download and run the Windows installer
+    * Follow the installation wizard
 
-3. **Create a virtual environment:**
-   ```powershell
-   python -m venv venv
-   ```
+28. **Start Ollama:**
 
-4. **Activate the virtual environment:**
-   ```powershell
-   # Command Prompt
-   venv\Scripts\activate.bat
-   
-   # PowerShell
-   venv\Scripts\Activate.ps1
-   ```
-   
-   If you get an execution policy error in PowerShell, run:
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
+    * Ollama usually starts automatically as a background service (check your system tray/taskbar).
+    * If it is **not** running, open Command Prompt or PowerShell and run:  
+      ollama serve
+    * **Note:** If you run ollama serve and get an error saying Error: listen tcp 127.0.0.1:11434: bind: Only one usage of each socket address, it simply means Ollama is **already running** in the background. This is good! You can proceed.
 
-5. **Upgrade pip:**
-   ```powershell
-   python -m pip install --upgrade pip
-   ```
+29. **Verify Ollama is running** (in a new terminal):  
+    curl http://localhost:11434/api/tags
 
-6. **Install project dependencies:**
-   ```powershell
-   pip install -r requirements.txt
-   ```
+    If curl is not available, use PowerShell's Invoke-WebRequest:  
+    Invoke-WebRequest -Uri http://localhost:11434/api/tags
 
-## Ollama Setup
+    #### **Step 3: Set Up Project**
 
-### Pull the Required Model
+30. **Open Command Prompt or PowerShell** and clone the repository:  
+    git clone \[https://github.com/fpesce81/Google-CKM-Agent-Ollama.git](https://github.com/fpesce81/Google-CKM-Agent-Ollama.git)
+31. **Navigate to project directory:**  
+    cd Google-CKM-Agent-Ollama
+32. **Create a virtual environment:**  
+    python -m venv venv
+33. **Activate the virtual environment:**
 
-After Ollama is installed and running, you need to download the `qwen2.5:14b` model:
+    # Command Prompt
 
-```bash
-# macOS/Linux
-ollama pull qwen2.5:14b
+    venv\\Scripts\\activate.bat
 
-# Windows (Command Prompt or PowerShell)
-ollama pull qwen2.5:14b
-```
+    \# PowerShell  
+    venv\\Scripts\\Activate.ps1
 
-This will download the model (approximately 8-10 GB). The download time depends on your internet connection.
+    If you get an execution policy error in PowerShell, run:  
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-### Verify Model Installation
+34. **Upgrade pip:**  
+    python -m pip install --upgrade pip
+35. **Install project dependencies:**  
+    pip install -r requirements.txt
 
-```bash
-# List all installed models
-ollama list
+    ## **Ollama Setup**
 
-# Test the model
-ollama run qwen2.5:14b "Hello, how are you?"
-```
+    ### **Pull the Required Model**
 
-### Using Other Ollama Models
+    After Ollama is installed and running, you need to download the qwen2.5:14b model.
 
-This project is configured and tested to use **`qwen2.5:14b`** by default, but you can use other Ollama models. Here are some popular alternatives:
+    **Important:** Make sure you are inside the project folder (cd Google-CKM-Agent-Ollama) before proceeding, although the pull command works globally.
 
-**Popular Ollama Models:**
-- `qwen2.5:32b` - More capable, requires more RAM (approx 20GB+)
-- `llama3.1:8b` - Balanced performance and speed
-- `mistral:7b` - Fast and efficient
-- `gemma2:9b` - Google's Gemma model
+    \# macOS/Linux/Windows  
+    ollama pull qwen2.5:14b
 
-**To use a different model:**
+    This will download the model (approximately 9-10 GB). The download time depends on your internet connection.
 
-1. **Pull the desired model:**
-   ```bash
+    ### **Verify Model Installation**
+
+    \# List all installed models  
+    ollama list
+
+    \# Test the model  
+    ollama run qwen2.5:14b "Hello, how are you?"
+
+    ### **Using Other Ollama Models**
+
+    This project is configured and **specifically tested** to use qwen2.5:14b by default. While you can use other Ollama models, performance may vary.
+
+    **Popular Ollama Models:**
+
+* llama3.2:3b - Smaller, faster model (good for testing)
+* llama3.1:8b - Balanced performance
+* ministral-3:14b - Previous default model
+* mistral:7b - Fast and efficient
+
+  **To use a different model:**
+
+1. **Pull the desired model:**  
    ollama pull llama3.2:3b
-   ```
+2. **Update the model in your code:**  
+   Edit src/agent.py, src/mediator.py, and src/specialists.py to change the model name:
 
-2. **Update the model in your code:**
-   
-   Edit `src/agent.py`, `src/mediator.py`, and `src/specialists.py` to change the model name:
-   
-   ```python
    # Change from:
-   model=LiteLlm(model="ollama_chat/qwen2.5:14b")
-   
-   # To (example):
-   model=LiteLlm(model="ollama_chat/llama3.2:3b")
-   ```
-   
-   You'll need to update the model in:
-   - `src/agent.py` (root_agent)
-   - `src/mediator.py` (mediator_agent)
-   - `src/specialists.py` (all three specialist agents)
 
-3. **Verify the model works:**
-   ```bash
-   ollama run <model-name> "Test message"
-   ```
+   model=LiteLlm(model="ollama\_chat/qwen2.5:14b")
 
-**For additional model options and configuration details**, refer to the [official Google ADK documentation](https://github.com/google/adk-python) and [Ollama model library](https://ollama.com/library).
+   \# To (example):  
+   model=LiteLlm(model="ollama\_chat/llama3.2:3b")
 
-### Configure Ollama API Base (Optional)
+   ## **Project Setup**
 
-By default, Ollama runs on `http://localhost:11434`. If you need to use a different address or port, set the environment variable:
+   ### **Verify Installation**
 
-**macOS/Linux:**
-```bash
-export OLLAMA_API_BASE=http://localhost:11434
-```
+   Run the verification script to check that everything is set up correctly.
 
-**Windows (Command Prompt):**
-```cmd
-set OLLAMA_API_BASE=http://localhost:11434
-```
+   **Note:** Ensure you are in the project root directory:
 
-**Windows (PowerShell):**
-```powershell
-$env:OLLAMA_API_BASE="http://localhost:11434"
-```
-
-To make this permanent, add it to your shell profile:
-- **macOS/Linux:** Add to `~/.bashrc`, `~/.zshrc`, or `~/.profile`
-- **Windows:** Add via System Properties > Environment Variables
-
-## Project Setup
-
-### Verify Installation
-
-Ensure you are inside the `Google-CKM-Agent-Ollama` directory before running the verification.
-
-Run the verification script to check that everything is set up correctly:
-
-```bash
-# macOS/Linux
-python verify_setup.py
-
-# Windows
-python verify_setup.py
-```
-
-This script checks:
-- ✅ Python dependencies are installed
-- ✅ Ollama server is accessible
-- ✅ Required model is available
-- ✅ Agent configuration files exist
-
-### Expected Output
-
-If everything is set up correctly, you should see:
-
-```
-============================================================
-ADK Ollama Demo - Setup Verification
-============================================================
-
-1. Checking Python dependencies...
-   ✓ All dependencies installed
-
-2. Checking environment variables...
-   ⚠ OLLAMA_API_BASE not set (using default: http://localhost:11434)
-
-3. Checking Ollama server connection...
-   ✓ Ollama server is running
-   Available models: qwen2.5:14b
-
-4. Checking model availability...
-   ✓ Model found: exact match
-
-5. Checking agent configuration...
-   ✓ Agent file found: src/agent.py
-
-============================================================
-✓ All checks passed! You're ready to use the agent.
-
-Try running:
-   adk web         # Start web interface
-   adk run .       # Start CLI interface
-============================================================
-```
-
-## Running the Project
-
-### Method 1: ADK Web Interface (Recommended)
-
-The ADK web interface provides an interactive UI for testing and debugging your agents.
-
-1. **Ensure Ollama is running:**
-   ```bash
-   # In a separate terminal
-   ollama serve
-   ```
-   *(Skip if already running in system tray)*
-
-2. **Navigate to the project directory** (if not already there):
-   ```bash
    cd Google-CKM-Agent-Ollama
-   ```
 
+   Run the script:
+
+   \# macOS/Linux  
+   python verify\_setup.py
+
+   \# Windows  
+   python verify\_setup.py
+
+   This script checks:
+
+* ✅ Python dependencies are installed
+* ✅ Ollama server is accessible
+* ✅ Required model (qwen2.5:14b) is available
+* ✅ Agent configuration files exist
+
+  ### **Expected Output**
+
+  If everything is set up correctly, you should see:
+
+  ============================================================  
+  ADK Ollama Demo - Setup Verification
+  ===
+
+  1\. Checking Python dependencies...  
+  ✓ All dependencies installed
+
+  2\. Checking environment variables...  
+  ⚠ OLLAMA\_API\_BASE not set (using default: http://localhost:11434)
+
+  3\. Checking Ollama server connection...  
+  ✓ Ollama server is running  
+  Available models: qwen2.5:14b
+
+  4\. Checking model availability...  
+  ✓ Model found: exact match
+
+  5\. Checking agent configuration...  
+  ✓ Agent file found: src/agent.py
+
+  ============================================================  
+  ✓ All checks passed! You're ready to use the agent.
+
+  Try running:  
+  adk web        # Start web interface  
+  adk run .       # Start CLI interface
+  ===
+
+  ## **Running the Project**
+
+  ### **Method 1: ADK Web Interface (Recommended)**
+
+  The ADK web interface provides an interactive UI for testing and debugging your agents.
+
+1. **Ensure Ollama is running** (check your taskbar or run ollama serve if needed).
+2. **Navigate to the project folder:**  
+   cd Google-CKM-Agent-Ollama
 3. **Activate your virtual environment** (if not already active):
-   ```bash
+
    # macOS/Linux
+
    source venv/bin/activate
-   
-   # Windows
-   venv\Scripts\activate
-   ```
 
-4. **Start the ADK web interface:**
-   ```bash
+   \# Windows  
+   venv\\Scripts\\activate
+
+4. **Start the ADK web interface:**  
    adk web .
-   ```
-
 5. **Access the web interface:**
-   - Open your browser and navigate to: **http://localhost:8000/dev-ui/?app=src**
-   - **IMPORTANT:** The conversation will not start automatically. You must type a greeting like **"Hi"**, **"Start"**, or **"Good morning"** in the chat box to trigger the Welcome Message.
-   
-   You should see:
-   > Welcome to the Cardio-Kidney-Metabolic (CKM) Syndrome Multi-Specialist Consultation portal.
-   > I help clinicians prepare and synthesize complex CKM cases involving the interplay of heart failure, chronic kidney disease, and metabolic conditions (diabetes, obesity). Recommendations follow current guidelines from cardiology (ESC/AHA), nephrology (KDIGO), and endocrinology (ADA).
-   > Choose your intake mode:
-   > 1. Guided intake (recommended) — I'll ask 3–5 high-yield questions step by step
-   > 2. Paste mode — Paste the full case (free text or JSON) and I'll structure it
-   > Reply 1 or 2 to begin.
 
-6. **To Stop the Server:**
-   - Go back to your terminal window.
-   - Press **Ctrl + C** to stop the process.
+   * Open your browser and navigate to: **http://localhost:8000/dev-ui/?app=src**  
+     *(Do not use just http://localhost:8000)*
 
-### Method 2: ADK CLI Interface
+6. **Trigger the Agent:**
 
-For command-line interaction:
+   * The interface may appear blank initially. To start the conversation and see the Welcome Screen, type a greeting like **"Hi"** or **"Good morning"** in the chat box.
+   * The agent should respond with:"Welcome to the Cardio-Kidney-Metabolic (CKM) Syndrome Multi-Specialist Consultation portal.  
+     I help clinicians prepare and synthesize complex CKM cases involving the interplay of heart failure, chronic kidney disease, and metabolic conditions (diabetes, obesity). Recommendations follow current guidelines from cardiology (ESC/AHA), nephrology (KDIGO), and endocrinology (ADA).  
+     Choose your intake mode:
 
-1. **Ensure Ollama is running** (in a separate terminal)
+     1. Guided intake (recommended) — I'll ask 3–5 high-yield questions step by step
+     2. Paste mode — Paste the full case (free text or JSON) and I'll structure it  
+        Reply 1 or 2 to begin."
 
-2. **Navigate to the project folder and activate your virtual environment**
+7. **Stopping the Server:**
 
-3. **Run the agent:**
-   ```bash
-   adk run .
-   ```
+   * To stop the adk web server, return to your terminal window and press Ctrl + C.
 
-   This will start an interactive CLI session where you can input patient cases.
+   ## **Usage Examples**
 
-## Usage Examples
+   **⚠️ CRITICAL NOTE: ONE CASE PER SESSION**
+   To ensure patient safety and data integrity, you **MUST start a New Session** (by refreshing the browser page or restarting the CLI) before entering a new patient case.
 
-### Example 1: Basic Patient Case
+   The agents maintain context ("memory") during a conversation. Entering a new patient in an active session will cause **data contamination** (e.g., mixing up age, sex, or medications from the previous patient).
 
-Once the web interface is running, you can input a patient case like:
+   ### **Method 2: ADK CLI Interface**
 
-```
-65-year-old male with:
-- Type 2 diabetes (HbA1c 8.2%)
-- Chronic kidney disease Stage 3a (eGFR 58 mL/min/1.73m², creatinine 1.4 mg/dL)
-- Heart failure with reduced ejection fraction (EF 35%, BNP 450 pg/mL)
-- Current medications: metformin 1000mg BID, lisinopril 10mg daily, metoprolol 50mg BID
-- BP: 142/88 mmHg, HR: 78 bpm
-- Chief complaint: Increasing fatigue and shortness of breath over past 2 weeks
-```
+   For command-line interaction:
 
-The system will:
+8. **Ensure Ollama is running** and you are in the Google-CKM-Agent-Ollama directory.
+9. **Activate your virtual environment.**
+10. **Run the agent:**  
+    adk run .
+
+    This will start an interactive CLI session where you can input patient cases.
+
+    ### **Example 1: Basic Patient Case**
+
+    Once the web interface is running (and you have initialized it with "Hi"), you can input a patient case like:
+
+    65-year-old male with:
+
+* Type 2 diabetes (HbA1c 8.2%)
+* Chronic kidney disease Stage 3a (eGFR 58 mL/min/1.73m², creatinine 1.4 mg/dL)
+* Heart failure with reduced ejection fraction (EF 35%, BNP 450 pg/mL)
+* Current medications: metformin 1000mg BID, lisinopril 10mg daily, metoprolol 50mg BID
+* BP: 142/88 mmHg, HR: 78 bpm
+* Chief complaint: Increasing fatigue and shortness of breath over past 2 weeks
+
+  The system will:
+
 1. Process the case through the root agent
 2. Delegate to three specialist agents (running in parallel)
 3. Synthesize recommendations through the mediator agent
 4. Return a comprehensive treatment plan
 
-### Example 2: Structured Case
+   ### **Example 2: Structured Case**
 
-You can also provide structured free-form text:
+   You can also provide structured free-form text:
 
-```
-72-year-old female patient
+   72-year-old female patient
 
-Demographics:
-- Age: 72 years
-- Sex: Female
-- Weight: 85 kg
-- Height: 165 cm
+   Demographics:
 
-Medical History:
-- Type 2 diabetes, diagnosed 2015
-- Essential hypertension
-- CKD Stage 3b
+   * Age: 72 years
+   * Sex: Female
+   * Weight: 85 kg
+   * Height: 165 cm
 
-Vital Signs:
-- Blood pressure: 138/82 mmHg
-- Heart rate: 82 bpm
+   Medical History:
 
-Laboratory Results:
-- HbA1c: 7.8%
-- eGFR: 45 mL/min/1.73m²
-- Creatinine: 1.6 mg/dL
-- Glucose: 165 mg/dL
-- Ejection fraction: 42%
-- NT-proBNP: 320 pg/mL
+   * Type 2 diabetes, diagnosed 2015
+   * Essential hypertension
+   * CKD Stage 3b
 
-Current Medications:
-- Metformin 500mg BID
-- Glipizide 5mg daily
-- Losartan 50mg daily
+   Vital Signs:
 
-Chief Complaint:
-Progressive lower extremity edema and weight gain of 5kg over 1 month
-```
+   * Blood pressure: 138/82 mmHg
+   * Heart rate: 82 bpm
 
-See `examples.md` for more detailed examples.
+   Laboratory Results:
 
-## Troubleshooting
+   * HbA1c: 7.8%
+   * eGFR: 45 mL/min/1.73m²
+   * Creatinine: 1.6 mg/dL
+   * Glucose: 165 mg/dL
+   * Ejection fraction: 42%
+   * NT-proBNP: 320 pg/mL
 
-### Issue: "Command 'ollama' not found"
+   Current Medications:
 
-**Solution:**
-- Ensure Ollama is installed and added to your PATH
-- On macOS/Linux, restart your terminal after installation
-- On Windows, restart your computer or manually add Ollama to PATH
+   * Metformin 500mg BID
+   * Glipizide 5mg daily
+   * Losartan 50mg daily
 
-### Issue: "Cannot connect to Ollama server"
+   Chief Complaint:  
+   Progressive lower extremity edema and weight gain of 5kg over 1 month
 
-**Solutions:**
+   See examples.md for more detailed examples.
+
+   ## **Troubleshooting**
+
+   ### **Issue: "Command 'ollama' not found"**
+
+   **Solution:**
+
+* Ensure Ollama is installed and added to your PATH
+* On macOS/Linux, restart your terminal after installation
+* On Windows, restart your computer or manually add Ollama to PATH
+
+  ### **Issue: "Cannot connect to Ollama server"**
+
+  **Solutions:**
+
 1. **Check if Ollama is running:**
-   ```bash
+
    # macOS/Linux
+
    curl http://localhost:11434/api/tags
-   
-   # Windows
+
+   \# Windows  
    Invoke-WebRequest -Uri http://localhost:11434/api/tags
-   ```
 
-2. **Start Ollama if not running:**
-   ```bash
+2. **Start Ollama if not running:**  
    ollama serve
-   ```
-   *Note: If you get a "bind: Only one usage" error, Ollama is already running.*
 
-3. **Check if port 11434 is in use:**
-   ```bash
+   *Remember: If this gives a "bind" error, it means it is ALREADY running.*
+
+   ### **Issue: "Model 'qwen2.5:14b' not found"**
+
+   **Solution:**
+
+   ollama pull qwen2.5:14b
+
+   Wait for the download to complete (this may take several minutes depending on your internet speed).
+
+   ### **Issue: "ModuleNotFoundError: No module named 'google.adk'"**
+
+   **Solutions:**
+
+3. **Ensure virtual environment is activated:**
+
    # macOS/Linux
-   lsof -i :11434
-   
-   # Windows
-   netstat -ano | findstr :11434
-   ```
 
-### Issue: "Model 'qwen2.5:14b' not found"
-
-**Solution:**
-```bash
-ollama pull qwen2.5:14b
-```
-
-Wait for the download to complete (this may take several minutes depending on your internet speed).
-
-### Issue: "ModuleNotFoundError: No module named 'google.adk'"
-
-**Solutions:**
-1. **Ensure virtual environment is activated:**
-   ```bash
-   # macOS/Linux
    source venv/bin/activate
-   
-   # Windows
-   venv\Scripts\activate
-   ```
 
-2. **Reinstall dependencies:**
-   ```bash
+   \# Windows  
+   venv\\Scripts\\activate
+
+4. **Reinstall dependencies:**  
    pip install -r requirements.txt
-   ```
 
-3. **Upgrade pip and retry:**
-   ```bash
-   python -m pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
+   ### **Issue: "adk: command not found"**
 
-### Issue: "adk: command not found"
+   **Solution:**
 
-**Solution:**
-The `adk` command should be available after installing `google-adk[all]`. If it's not found:
+   The adk command should be available after installing google-adk\[all]. If it's not found:
 
-1. **Ensure virtual environment is activated**
-
-2. **Reinstall with the 'all' extra:**
-   ```bash
-   pip install --upgrade "google-adk[all]"
-   ```
-
-3. **Verify installation:**
-   ```bash
-   pip show google-adk
+5. **Ensure virtual environment is activated**
+6. **Reinstall with the 'all' extra:**  
+   pip install --upgrade "google-adk\[all]"
+7. **Verify installation:**  
+   pip show google-adk  
    adk --version
-   ```
 
-### Issue: Port 8000 already in use (ADK Web)
+   ### **Issue: Port 8000 already in use (ADK Web)**
 
-**Solution:**
-1. **Find the process using port 8000:**
-   ```bash
+   **Solution:**
+
+8. **Find the process using port 8000:**
+
    # macOS/Linux
+
    lsof -i :8000
-   
-   # Windows
+
+   \# Windows  
    netstat -ano | findstr :8000
-   ```
 
-2. **Kill the process** or use a different port (if ADK supports it)
+9. **Kill the process** or use a different port (if ADK supports it)
+10. **Or wait** for the previous instance to finish
 
-3. **Or wait** for the previous instance to finish
+    ### **Issue: Virtual environment activation fails (Windows PowerShell)**
 
-### Issue: Slow model responses
+    **Solution:**
 
-**Possible causes and solutions:**
-1. **Model is still downloading** - Wait for download to complete
-2. **Insufficient system resources** - Close other applications
-3. **Large model size** - Consider using a smaller model for testing
-4. **Network issues** (if using remote Ollama) - Check network connection
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-### Issue: Virtual environment activation fails (Windows PowerShell)
+    Then try activating again:
 
-**Solution:**
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
+    venv\\Scripts\\Activate.ps1
 
-Then try activating again:
-```powershell
-venv\Scripts\Activate.ps1
-```
+    ## **Project Structure**
 
-## Project Structure
+    Google-CKM-Agent-Ollama/  
+    ├── README.md                 # This file  
+    ├── requirements.txt          # Python dependencies  
+    ├── pyproject.toml            # Project configuration  
+    ├── examples.md               # Usage examples  
+    ├── verify\_setup.py           # Setup verification script  
+    └── src/  
+    ├── \_\_init\_\_.py  
+    ├── agent.py              # Root agent and orchestration  
+    ├── mediator.py           # Mediator agent  
+    ├── specialists.py        # Specialist agents (cardiologist, nephrologist, diabetologist)  
+    └── utils.py              # Utility functions
 
-```
-Google-Agent-Ollama/
-├── README.md                 # This file
-├── requirements.txt          # Python dependencies
-├── pyproject.toml           # Project configuration
-├── examples.md              # Usage examples
-├── verify_setup.py          # Setup verification script
-└── src/
-    ├── __init__.py
-    ├── agent.py             # Root agent and orchestration
-    ├── mediator.py          # Mediator agent
-    ├── specialists.py       # Specialist agents (cardiologist, nephrologist, diabetologist)
-    └── utils.py             # Utility functions
-```
+    ## **Additional Resources**
 
-## Additional Resources
+* [Google ADK Documentation](https://github.com/google/adk-python)
+* [Ollama Documentation](https://ollama.com/docs)
+* [LiteLLM Documentation](https://docs.litellm.ai/)
 
-- [Google ADK Documentation](https://github.com/google/adk-python)
-- [Ollama Documentation](https://ollama.com/docs)
-- [LiteLLM Documentation](https://docs.litellm.ai/)
+  ## **Support**
 
-## Support
+  If you encounter issues not covered in this guide:
 
-If you encounter issues not covered in this guide:
-
-1. Run the verification script: `python verify_setup.py`
-2. Check the [Troubleshooting](#troubleshooting) section
-3. Review the project's example cases in `examples.md`
+1. Run the verification script: python verify\_setup.py
+2. Check the [Troubleshooting](https://www.google.com/search?q=%23troubleshooting) section
+3. Review the project's example cases in examples.md
 4. Consult the ADK and Ollama documentation
 
-## License
+   ## **License**
 
-This project is provided as-is for demonstration purposes.
+   This project is provided as-is for demonstration purposes.
 
----
+   **Note:** This project uses the qwen2.5:14b model via Ollama by default. Ensure you have sufficient disk space (approximately 9-10 GB) and system resources to run the model effectively. You can use other Ollama models by updating the model configuration in the source files (see [Using Other Ollama Models](https://www.google.com/search?q=%23using-other-ollama-models) section). For additional model options and advanced configuration, refer to the [official Google ADK documentation](https://github.com/google/adk-python).
 
-**Note:** This project uses the `qwen2.5:14b` model via Ollama by default. Ensure you have sufficient disk space (approximately 8-10 GB) and system resources to run the model effectively. You can use other Ollama models by updating the model configuration in the source files (see [Using Other Ollama Models](#using-other-ollama-models) section). For additional model options and advanced configuration, refer to the [official Google ADK documentation](https://github.com/google/adk-python).
